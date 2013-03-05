@@ -12,51 +12,47 @@ class Player
   
   def play_turn(warrior)
 
+    @a=warrior.look
+    puts @a[0]
+    puts @a[1]
+    puts @a[2]
+    
     puts 'Last health ' + @health.to_s
     puts 'Health ' + warrior.health.to_s
-    if warrior.feel(:forward).wall?
-      warrior.pivot!
     
-    elsif warrior.feel(:forward).empty?
-      if @attacking
+    if @attacking && @a[0].to_s=='nothing'
 	@no_att += 1
 	@attacking=false
+    end
+    
+    if @a[0].to_s=='nothing'
+      
+      if @a[1].to_s=='Wizard'
+	warrior.shoot!
+	@attacking=true
+      elsif @a[1].to_s=='Captive'
+	warrior.walk!
+      elsif @a[1].to_s=='nothing'
+	if @a[2].to_s=='Wizard'
+	  warrior.shoot!
+	elsif @a[2].to_s=='nothing'
+	  warrior.walk!
+	else
+	  warrior.walk!
+	end
+      else
+      warrior.walk!
+      end
+      
+    elsif @a[0].to_s=='Captive'
+      warrior.rescue!
+    else
+      warrior.walk!
+      
+    end
 
-      end
-      
-      if (@health> warrior.health && warrior.health>4) ||  warrior.health>=10 || @no_att==2
-	@move=true
-	@direction=:forward
-      elsif (@health <= warrior.health) && ((warrior.health < 10 && @no_att==1) && @direction==:backward)
-	@move=false
-      else
-	@move=true
-	@direction=:backward
-      end
-      
-      #There are only 3 enemies
-      if @move
-	warrior.walk!(@direction)
-      else
-	warrior.rest!
-      end
     
       
-      #More than 12 of life is necessary to kill a Sludge
-
-      
-    else
-      
-      #if is not empty and there is a captive rescue
-      if warrior.feel(@direction).captive?
-	warrior.rescue!(@direction)
-	@captive=true;
-      else
-	#if is not empty and there is a monster attack
-	warrior.attack!
-	@attacking=true
-      end
-    end
     
     @health = warrior.health
   end
