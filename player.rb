@@ -5,7 +5,7 @@ class Player
     @health = 20
     @attacking=false
     @no_att=0
-    @direction=:backward
+    @direction=:forward
     @move=true
     @captive=false
   end
@@ -14,21 +14,24 @@ class Player
 
     puts 'Last health ' + @health.to_s
     puts 'Health ' + warrior.health.to_s
-    if warrior.feel(@direction).empty?
+    if warrior.feel(:forward).wall?
+      warrior.pivot!
+    
+    elsif warrior.feel(:forward).empty?
       if @attacking
 	@no_att += 1
 	@attacking=false
 
       end
       
-      if (@health > warrior.health) && ((warrior.health < 10 && @no_att==1))
-	@move=true
-	@direction=:backward
-      elsif (@health <= warrior.health) && ((warrior.health < 16 && @no_att==1))
-	@move=false
-      elsif @captive
+      if (@health> warrior.health && warrior.health>4) ||  warrior.health>=10 || @no_att==2
 	@move=true
 	@direction=:forward
+      elsif (@health <= warrior.health) && ((warrior.health < 10 && @no_att==1) && @direction==:backward)
+	@move=false
+      else
+	@move=true
+	@direction=:backward
       end
       
       #There are only 3 enemies
